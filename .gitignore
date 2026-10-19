@@ -3,3 +3,4 @@ __pycache__/
 results/
 summary*.json
 .DS_Store
+.schemas/

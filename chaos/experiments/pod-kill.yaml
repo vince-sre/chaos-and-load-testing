@@ -1,0 +1,17 @@
+# Hypothesis: killing one orders pod causes no SLO-visible errors, because
+# replicas >= 2, a PDB, readiness probes and Istio retries absorb it.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: orders-pod-kill
+  namespace: chaos-testing
+  annotations:
+    experiment.platform.example.com/hypothesis: "Losing one pod keeps checkout 5xx ratio < 0.1% and p95 < 300ms"
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces: [team-orders-staging]
+    labelSelectors:
+      app.kubernetes.io/name: orders
+  gracePeriod: 0

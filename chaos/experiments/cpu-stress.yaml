@@ -1,0 +1,18 @@
+# Hypothesis: CPU saturation on one pod triggers HPA scale-out within 2 minutes
+# and Karpenter adds capacity if needed; the SLO holds.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: orders-cpu-stress
+  namespace: chaos-testing
+spec:
+  mode: one
+  selector:
+    namespaces: [team-orders-staging]
+    labelSelectors:
+      app.kubernetes.io/name: orders
+  stressors:
+    cpu:
+      workers: 2
+      load: 90
+  duration: 10m

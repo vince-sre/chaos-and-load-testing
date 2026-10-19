@@ -1,0 +1,18 @@
+# Hypothesis: losing every pod in one AZ is survivable because topology
+# spread keeps replicas in >= 2 zones. Run only in a game day, with an
+# incident commander present.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: orders-zone-failure
+  namespace: chaos-testing
+spec:
+  action: pod-failure
+  mode: all
+  selector:
+    namespaces: [team-orders-staging]
+    labelSelectors:
+      app.kubernetes.io/name: orders
+    nodeSelectors:
+      topology.kubernetes.io/zone: us-east-2a
+  duration: 10m

@@ -1,0 +1,45 @@
+# Scheduled resilience check in staging: pod kill, then dependency latency.
+# Each step only runs if the previous one finished. Pair it with
+# scripts/steady-state.sh in a CronJob, or watch the SLO dashboard.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Schedule
+metadata:
+  name: weekly-resilience
+  namespace: chaos-testing
+spec:
+  schedule: "0 15 * * 2" # Tuesdays 15:00 UTC, business hours, people around
+  historyLimit: 5
+  concurrencyPolicy: Forbid
+  type: Workflow
+  workflow:
+    entry: resilience
+    templates:
+      - name: resilience
+        templateType: Serial
+        deadline: 30m
+        children: [kill-one-pod, settle, add-latency]
+      - name: kill-one-pod
+        templateType: PodChaos
+        deadline: 1m
+        podChaos:
+          action: pod-kill
+          mode: one
+          selector:
+            namespaces: [team-orders-staging]
+            labelSelectors:
+              app.kubernetes.io/name: orders
+      - name: settle
+        templateType: Suspend
+        deadline: 5m
+      - name: add-latency
+        templateType: NetworkChaos
+        deadline: 5m
+        networkChaos:
+          action: delay
+          mode: all
+          selector:
+            namespaces: [team-orders-staging]
+            labelSelectors:
+              app.kubernetes.io/name: orders
+          delay:
+            latency: 150ms

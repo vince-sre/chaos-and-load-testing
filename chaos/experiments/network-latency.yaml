@@ -1,0 +1,26 @@
+# Hypothesis: +200ms latency to the payments dependency degrades p95 but
+# timeouts and retries keep the error ratio inside budget.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: payments-latency
+  namespace: chaos-testing
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces: [team-orders-staging]
+    labelSelectors:
+      app.kubernetes.io/name: orders
+  direction: to
+  target:
+    mode: all
+    selector:
+      namespaces: [team-payments-staging]
+      labelSelectors:
+        app.kubernetes.io/name: payments
+  delay:
+    latency: 200ms
+    jitter: 50ms
+    correlation: "25"
+  duration: 5m
