@@ -8,8 +8,8 @@ export const SLO = {
 
 export function sloThresholds(extra = {}) {
   return {
-    // Server errors only: 4xx are client mistakes and don't burn budget.
-    'http_req_failed{expected_response:false}': [{ threshold: `rate<${(1 - SLO.availability).toFixed(4)}`, abortOnFail: false }],
+    // http_req_failed counts only 5xx/network errors (see setResponseCallback in flows.js).
+    http_req_failed: [`rate<${(1 - SLO.availability).toFixed(4)}`],
     'http_req_duration{expected_response:true}': [`p(95)<${SLO.latencyP95Ms}`, `p(99)<${SLO.latencyP99Ms}`],
     checks: ['rate>0.99'],
     ...extra,

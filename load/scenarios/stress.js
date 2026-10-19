@@ -24,7 +24,7 @@ export const options = {
     'http_req_duration{expected_response:true}': [
       { threshold: `p(95)<${SLO.latencyP95Ms * 3}`, abortOnFail: true, delayAbortEval: '1m' },
     ],
-    'http_req_failed{expected_response:false}': [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '1m' }],
+    http_req_failed: [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '1m' }],
   },
 };
 
